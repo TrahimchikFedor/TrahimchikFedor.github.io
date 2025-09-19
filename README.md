@@ -36,7 +36,7 @@
                 statusEl.textContent = 'Приложение готово.';
                 statusEl.style.color = 'green';
 
-                tg.MainButton.setText("Завершить регистрацию");
+                tg.MainButton.setText("Сохранить и закрыть");
                 tg.MainButton.show();
                 
                 tg.MainButton.onClick(function() {
@@ -53,7 +53,14 @@
                         last_name: lastName 
                     };
                     
+                    // Диагностическое сообщение
+                    statusEl.textContent = 'Данные отправлены. Закрытие...';
+                    
+                    // --- КЛЮЧЕВЫЕ ИЗМЕНЕНИЯ ---
+                    // 1. Отправляем данные
                     tg.sendData(JSON.stringify(data));
+                    // 2. ЯВНО даем команду закрыть приложение
+                    tg.close();
                 });
 
             } catch (e) {
