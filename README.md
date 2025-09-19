@@ -1,60 +1,66 @@
+<!-- register.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Регистрация продавца</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 15px; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); }
-    .form-group { margin-bottom: 12px; }
-    input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
-    button { width: 100%; padding: 12px; border-radius: 6px; border: none; font-size: 16px; cursor: pointer; }
-    #error { color: #c00; margin-top: 8px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Регистрация продавца</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 15px; color: var(--tg-theme-text-color); background-color: var(--tg-theme-bg-color); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--tg-theme-hint-color); border-radius: 8px; font-size: 16px; }
+        #status { text-align: center; margin-top: 15px; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <h3>Профиль продавца</h3>
-  <div class="form-group">
-    <label>Имя</label>
-    <input id="first_name" placeholder="Иван" />
-  </div>
-  <div class="form-group">
-    <label>Фамилия</label>
-    <input id="last_name" placeholder="Иванов" />
-  </div>
-  <p id="error"></p>
-  <button id="submit_btn">Сохранить профиль</button>
+    <h3>Профиль продавца</h3>
+    <div class="form-group">
+        <label for="first_name">Ваше Имя:</label>
+        <input type="text" id="first_name" placeholder="Иван">
+    </div>
+    <div class="form-group">
+        <label for="last_name">Ваша Фамилия:</label>
+        <input type="text" id="last_name" placeholder="Иванов">
+    </div>
+    <p id="status"></p>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.MainButton.text = "Сохранить профиль";
-    tg.MainButton.show();
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const tg = window.Telegram.WebApp;
+                const statusEl = document.getElementById('status');
+                
+                tg.expand();
+                statusEl.textContent = 'Приложение готово.';
+                statusEl.style.color = 'green';
 
-    function sendProfile() {
-      const first = document.getElementById('first_name').value.trim();
-      const last = document.getElementById('last_name').value.trim();
-      const err = document.getElementById('error');
-      err.innerText = "";
+                tg.MainButton.setText("Завершить регистрацию");
+                tg.MainButton.show();
+                
+                tg.MainButton.onClick(function() {
+                    const firstName = document.getElementById('first_name').value;
+                    const lastName = document.getElementById('last_name').value;
 
-      if (first.length < 2 || last.length < 2) {
-        err.innerText = "Имя и фамилия должны содержать минимум 2 символа.";
-        return;
-      }
+                    if (firstName.trim().length < 2 || lastName.trim().length < 2) {
+                        tg.showAlert("Пожалуйста, введите имя и фамилию (минимум 2 символа).");
+                        return;
+                    }
+                    
+                    const data = { 
+                        first_name: firstName, 
+                        last_name: lastName 
+                    };
+                    
+                    tg.sendData(JSON.stringify(data));
+                });
 
-      const payload = { first_name: first, last_name: last };
-      try {
-        tg.sendData(JSON.stringify(payload));
-        // Закрываем mini app
-        tg.close();
-      } catch (e) {
-        err.innerText = "Ошибка отправки данных. Попробуйте ещё раз.";
-        console.error("sendData error:", e);
-      }
-    }
-
-    tg.onEvent('mainButtonClicked', function() { sendProfile(); });
-    document.getElementById('submit_btn').addEventListener('click', sendProfile);
-  </script>
+            } catch (e) {
+                document.getElementById('status').textContent = 'Ошибка: ' + e.message;
+                document.getElementById('status').style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>
